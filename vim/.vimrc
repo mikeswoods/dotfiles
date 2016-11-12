@@ -1,21 +1,11 @@
-" A minimal vimrc for new vim users to start with.
+" ~~~~ Mike Woods .vimrc ~~~~
 "
-" Referenced here: http://vimuniversity.com/samples/your-first-vimrc-should-be-nearly-empty
-"
-" Original Author:       Bram Moolenaar <Bram@vim.org>
-" Made more minimal by:  Ben Orenstein
-" Modified by :          Ben McCormick
-" Last change:           2014 June 8
-"
-" To use it, copy it to
-"  for Unix based systems (including OSX and Linux):  ~/.vimrc
-"  for Windows :  $VIM\_vimrc
-"
-"  If you don't understand a setting in here, just type ':h setting'.
-
 " Use Vim settings, rather than Vi settings (much better!).
 " This must be first, because it changes other options as a side effect.
 set nocompatible
+
+" Set leader to space
+let mapleader = "\<Space>"
 
 " ~~~~ Vundle shit ~~~~
 " set the runtime path to include Vundle and initialize
@@ -36,15 +26,20 @@ Bundle 'altercation/vim-colors-solarized'
 Bundle 'mileszs/ack.vim'
 Bundle 'ctrlpvim/ctrlp.vim'
 Bundle 'scrooloose/nerdtree'
+Bundle 'scrooloose/nerdcommenter'
 Bundle 'JamshedVesuna/vim-markdown-preview'
 Bundle 'ntpeters/vim-better-whitespace'
 Plugin 'Valloric/YouCompleteMe'
+Plugin 'tpope/vim-fugitive'
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
+Plugin 'qpkorr/vim-bufkill'
 
 " +++++++++++++++++++++++++
 " Config for bundles:
 "
 " === YouCompleteMe ===
-let g:ycm_python_binary_path = '/usr/local/bin/python'
+"let g:ycm_python_binary_path = '/usr/local/bin/python'
 
 " +++++++++++++++++++++++++
 
@@ -157,13 +152,44 @@ let vim_markdown_preview_hotkey='<C-m>'
 let vim_markdown_preview_browser='Google Chrome'
 let vim_markdown_preview_github=1
 
+" Strip whitespace on save
+autocmd FileType javascript autocmd BufWritePre <buffer> StripWhitespace
+
 " NERDTree
 let NERDTreeShowLineNumbers = 1
 autocmd FileType nerdtree setlocal relativenumber
+
 " The following two options make it work well with vinegar.vim
-let NERDTreeHijackNetrw = 1
+let NERDTreeHijackNetrw=1
 let g:NERDTreeMapUpdir="-"
+let g:NERDTreeWinSize=48
+
+" Map NERDTree to ctrl-n
+map <C-n> :NERDTreeToggle<CR>
 
 " Clear highlighting after pressing esc
 "nnoremap <esc> :noh<return><esc>
 
+" Enable vim-airline
+let g:airline#extensions#tabline#enabled=1
+
+" Show the buffer number next to the name:
+let g:airline#extensions#tabline#buffer_nr_show=1
+
+" Mac option+(1..0) -> buffer 1..10
+map <D-1>: b1<CR>
+map <D-2> :b2<CR>
+map <D-3> :b3<CR>
+map <D-4> :b4<CR>
+map <D-5> :b5<CR>
+map <D-6> :b6<CR>
+map <D-7> :b7<CR>
+map <D-8> :b8<CR>
+map <D-9> :b9<CR>
+map <D-0> :b10<CR>
+map <D-[> :bprev<CR>
+map <D-]> :bnext<CR>
+map <D-\> :buffers<CR>
+
+" Kill the current buffer with ctrl+c
+map <C-c> :BD<cr>

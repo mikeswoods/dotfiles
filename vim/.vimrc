@@ -26,14 +26,15 @@ Bundle 'altercation/vim-colors-solarized'
 Bundle 'mileszs/ack.vim'
 Bundle 'ctrlpvim/ctrlp.vim'
 Bundle 'scrooloose/nerdtree'
-Bundle 'scrooloose/nerdcommenter'
-Bundle 'JamshedVesuna/vim-markdown-preview'
+"Bundle 'scrooloose/nerdcommenter'
 Bundle 'ntpeters/vim-better-whitespace'
 Plugin 'Valloric/YouCompleteMe'
 Plugin 'tpope/vim-fugitive'
 Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 Plugin 'qpkorr/vim-bufkill'
+Plugin 'tomtom/tcomment_vim'
+" Plugin 'berdandy/ansiesc.vim'
 
 " +++++++++++++++++++++++++
 " Config for bundles:
@@ -78,6 +79,9 @@ set relativenumber
 " Allow hidden buffers, don't limit to 1 file per window/split
 set hidden
 
+" Don't wrap lines by default
+set nowrap
+
 " Show the ruler
 set ruler
 
@@ -111,70 +115,21 @@ set incsearch
 " searches are case insensitive...
 set ignorecase
 
+" clear highlighted search matches
+nnoremap <leader><space> :nohlsearch<CR>
+
 " ... unless they contain at least one capital letter
 set smartcase
 
-" Set the title of the window to the working directory:
-if has('gui_running')
-  set guitablabel=(%N)\ %t\ %M
-endif
+" show matching braces and brackets
+set showmatch
 
-" Backup stuff
-set backup " enable backups
-set noswapfile
+" enable wildmenu"
+set wildmenu
+set wildignorecase
+set wildmode=full
 
-set undodir=~/.nvim-tmp/undo//     " undo files
-set backupdir=~/.nvim-tmp/backup// " backups
-set directory=~/.nvim-tmp/swap//   " swap files
-
-" Make those folders automatically if they don't already exist.
-if !isdirectory(expand(&undodir))
-    call mkdir(expand(&undodir), "p")
-endif
-if !isdirectory(expand(&backupdir))
-    call mkdir(expand(&backupdir), "p")
-endif
-if !isdirectory(expand(&directory))
-    call mkdir(expand(&directory), "p")
-endif
-
-" Dark solarized + molokai
-set background=dark
-" solarized options
-let g:solarized_visibility="high"
-let g:solarized_contrast="high"
-let g:solarized_termcolors=256
-let g:solarized_termtrans=1
-colorscheme solarized
-
-" Markdown generation options:
-let vim_markdown_preview_hotkey='<C-m>'
-let vim_markdown_preview_browser='Google Chrome'
-let vim_markdown_preview_github=1
-
-" Strip whitespace on save
-autocmd FileType javascript autocmd BufWritePre <buffer> StripWhitespace
-
-" NERDTree
-let NERDTreeShowLineNumbers = 1
-autocmd FileType nerdtree setlocal relativenumber
-
-" The following two options make it work well with vinegar.vim
-let NERDTreeHijackNetrw=1
-let g:NERDTreeMapUpdir="-"
-let g:NERDTreeWinSize=48
-
-" Map NERDTree to ctrl-n
-map <C-n> :NERDTreeToggle<CR>
-
-" Clear highlighting after pressing esc
-"nnoremap <esc> :noh<return><esc>
-
-" Enable vim-airline
-let g:airline#extensions#tabline#enabled=1
-
-" Show the buffer number next to the name:
-let g:airline#extensions#tabline#buffer_nr_show=1
+" === Buffer-related =========================================================
 
 " Mac option+(1..0) -> buffer 1..10
 map <D-1>: b1<CR>
@@ -192,4 +147,98 @@ map <D-]> :bnext<CR>
 map <D-\> :buffers<CR>
 
 " Kill the current buffer with ctrl+c
-map <C-c> :BD<cr>
+map <C-c> :BD!<cr>
+
+" Create a new, unnamed buffer with ctrl+b
+map <C-b> :enew<cr>
+
+" Open $MYVIMRC for editing:
+map <silent> <leader>ev :e $MYVIMRC<cr>
+
+" Reload $MYVIMRC
+
+map <silent> <leader>rv :so $MYVIMRC<cr>
+
+" === Arrow keys =============================================================
+
+map <up> <nop>
+map <down> <nop>
+map <left> <nop>
+map <right> <nop>
+
+" === Display & status =======================================================
+
+" Set the title of the window to the working directory:
+if has('gui_running')
+  set guitablabel=(%N)\ %t\ %M
+endif
+
+" === Backup & history & undo-related ========================================
+
+set history=1000
+set undolevels=1000
+
+set nobackup
+set noswapfile
+
+set undodir=~/.nvim-tmp/undo//     " undo files
+set backupdir=~/.nvim-tmp/backup// " backups
+set directory=~/.nvim-tmp/swap//   " swap files
+
+" Make those folders automatically if they don't already exist.
+if !isdirectory(expand(&undodir))
+    call mkdir(expand(&undodir), "p")
+endif
+if !isdirectory(expand(&backupdir))
+    call mkdir(expand(&backupdir), "p")
+endif
+if !isdirectory(expand(&directory))
+    call mkdir(expand(&directory), "p")
+endif
+
+" === Theme ==================================================================
+
+" Dark solarized + molokai
+set background=dark
+" solarized options
+let g:solarized_visibility="high"
+let g:solarized_contrast="high"
+let g:solarized_termcolors=256
+let g:solarized_termtrans=1
+colorscheme solarized
+
+" === Markdown ===============================================================
+
+" Markdown generation options:
+let vim_markdown_preview_hotkey='<C-m>'
+let vim_markdown_preview_browser='Google Chrome'
+let vim_markdown_preview_github=1
+
+" Strip whitespace on save
+autocmd FileType javascript autocmd BufWritePre <buffer> StripWhitespace
+
+" ===  NERDTree ==============================================================
+
+let NERDTreeShowLineNumbers = 1
+autocmd FileType nerdtree setlocal relativenumber
+
+" The following two options make it work well with vinegar.vim
+let NERDTreeHijackNetrw=1
+let g:NERDTreeMapUpdir="-"
+let g:NERDTreeWinSize=48
+
+" Map NERDTree to ctrl-n
+map <C-n> :NERDTreeToggle<CR>
+
+" Clear highlighting after pressing esc
+"nnoremap <esc> :noh<return><esc>
+
+" === vim-airline ===========================================================
+
+" Enable vim-airline
+let g:airline#extensions#tabline#enabled=1
+
+" Show the buffer number next to the name:
+let g:airline#extensions#tabline#buffer_nr_show=1
+
+

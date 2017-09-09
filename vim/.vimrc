@@ -129,6 +129,11 @@ set wildmenu
 set wildignorecase
 set wildmode=full
 
+" === JS-syntax related ======================================================   
+
+" Enables syntax highlighting for Flow.
+let g:javascript_plugin_flow = 1
+
 " === Buffer-related =========================================================
 
 " Mac option+(1..0) -> buffer 1..10
@@ -159,12 +164,22 @@ map <silent> <leader>ev :e $MYVIMRC<cr>
 
 map <silent> <leader>rv :so $MYVIMRC<cr>
 
+" === Disable Command-z for undo
+map <D-Z> <nop>
+imap <D-Z> <nop>
+
 " === Arrow keys =============================================================
 
+" Disable arrow keys
 map <up> <nop>
 map <down> <nop>
 map <left> <nop>
 map <right> <nop>
+
+imap <up> <nop>
+imap <down> <nop>
+imap <left> <nop>
+imap <right> <nop>
 
 " === Display & status =======================================================
 
@@ -230,8 +245,18 @@ let g:NERDTreeWinSize=48
 " Map NERDTree to ctrl-n
 map <C-n> :NERDTreeToggle<CR>
 
+" Auto-open NERDTree when vim starts
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+
 " Clear highlighting after pressing esc
 "nnoremap <esc> :noh<return><esc>
+
+" Show bookmarks
+let g:NERDTreeShowBookmarks=1
+
+" Show hidden files
+let g:NERDTreeShowFiles=1
 
 " === vim-airline ===========================================================
 
@@ -240,5 +265,4 @@ let g:airline#extensions#tabline#enabled=1
 
 " Show the buffer number next to the name:
 let g:airline#extensions#tabline#buffer_nr_show=1
-
 

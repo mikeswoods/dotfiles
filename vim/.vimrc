@@ -24,9 +24,8 @@ Plugin 'tpope/vim-surround'
 Plugin 'pangloss/vim-javascript'
 Bundle 'altercation/vim-colors-solarized'
 Bundle 'mileszs/ack.vim'
-Bundle 'ctrlpvim/ctrlp.vim'
+Plugin 'junegunn/fzf.vim'
 Bundle 'scrooloose/nerdtree'
-"Bundle 'scrooloose/nerdcommenter'
 Bundle 'ntpeters/vim-better-whitespace'
 Plugin 'Valloric/YouCompleteMe'
 Plugin 'tpope/vim-fugitive'
@@ -34,7 +33,6 @@ Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 Plugin 'qpkorr/vim-bufkill'
 Plugin 'tomtom/tcomment_vim'
-" Plugin 'berdandy/ansiesc.vim'
 
 " +++++++++++++++++++++++++
 " Config for bundles:
@@ -213,6 +211,8 @@ endif
 
 " === Theme ==================================================================
 
+let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+
 " Dark solarized + molokai
 set background=dark
 " solarized options
@@ -232,15 +232,26 @@ let vim_markdown_preview_github=1
 " Strip whitespace on save
 autocmd FileType javascript autocmd BufWritePre <buffer> StripWhitespace
 
+" == fzf =====================================================================
+
+" Point to the fzf homebrew installation:
+set rtp+=/usr/local/opt/fzf
+
+" Bind ctrl+p to fzf's :Files command
+map <C-p> :Files<CR>
+
 " ===  NERDTree ==============================================================
 
 let NERDTreeShowLineNumbers = 1
 autocmd FileType nerdtree setlocal relativenumber
 
 " The following two options make it work well with vinegar.vim
-let NERDTreeHijackNetrw=1
-let g:NERDTreeMapUpdir="-"
-let g:NERDTreeWinSize=48
+let NERDTreeHijackNetrw = 1
+let g:NERDTreeMapUpdir = "-"
+let g:NERDTreeWinSize = 40
+let NERDTreeAutoDeleteBuffer = 1
+let NERDTreeMinimalUI = 1
+let NERDTreeDirArrows = 1
 
 " Map NERDTree to ctrl-n
 map <C-n> :NERDTreeToggle<CR>
@@ -253,7 +264,7 @@ autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 "nnoremap <esc> :noh<return><esc>
 
 " Show bookmarks
-let g:NERDTreeShowBookmarks=1
+" let g:NERDTreeShowBookmarks=1
 
 " Show hidden files
 let g:NERDTreeShowFiles=1

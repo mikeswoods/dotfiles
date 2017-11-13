@@ -127,7 +127,10 @@ set wildmenu
 set wildignorecase
 set wildmode=full
 
-" === JS-syntax related ======================================================   
+" Switch to the directory of the file that is being edited:
+set autochdir
+
+" === JS-syntax related ======================================================
 
 " Enables syntax highlighting for Flow.
 let g:javascript_plugin_flow = 1
@@ -153,7 +156,7 @@ map <D-\> :buffers<CR>
 map <C-c> :BD!<cr>
 
 " Create a new, unnamed buffer with ctrl+b
-map <C-b> :enew<cr>
+"map <leader>b :enew<cr>
 
 " Open $MYVIMRC for editing:
 map <silent> <leader>ev :e $MYVIMRC<cr>
@@ -211,6 +214,8 @@ endif
 
 " === Theme ==================================================================
 
+" >>> Use Solarized
+
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 
 " Dark solarized + molokai
@@ -220,16 +225,11 @@ let g:solarized_visibility="high"
 let g:solarized_contrast="high"
 let g:solarized_termcolors=256
 let g:solarized_termtrans=1
+
 colorscheme solarized
 
-" === Markdown ===============================================================
+" === Strip whitespace on save ===============================================
 
-" Markdown generation options:
-let vim_markdown_preview_hotkey='<C-m>'
-let vim_markdown_preview_browser='Google Chrome'
-let vim_markdown_preview_github=1
-
-" Strip whitespace on save
 autocmd FileType javascript autocmd BufWritePre <buffer> StripWhitespace
 
 " == fzf =====================================================================
@@ -239,6 +239,10 @@ set rtp+=/usr/local/opt/fzf
 
 " Bind ctrl+p to fzf's :Files command
 map <C-p> :Files<CR>
+
+" === ag / ack ===============================================================
+
+map <leader>f :Ag 
 
 " ===  NERDTree ==============================================================
 
@@ -254,11 +258,18 @@ let NERDTreeMinimalUI = 1
 let NERDTreeDirArrows = 1
 
 " Map NERDTree to ctrl-n
-map <C-n> :NERDTreeToggle<CR>
+if empty($NERDTREE_START)
+  map <C-n> :NERDTreeToggle $HOME<CR>
+else
+  map <C-n> :NERDTreeToggle $NERDTREE_START_DIR<CR>
+endif
 
 " Auto-open NERDTree when vim starts
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+
+" When a file is opened, close the NERDTree window:
+let NERDTreeQuitOnOpen = 1
 
 " Clear highlighting after pressing esc
 "nnoremap <esc> :noh<return><esc>

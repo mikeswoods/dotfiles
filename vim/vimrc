@@ -7,7 +7,7 @@ set nocompatible
 " Set leader to space
 let mapleader = "\<Space>"
 
-" ~~~~ Vundle shit ~~~~
+" ~~~~ Vundle setup ~~~~
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
@@ -22,42 +22,24 @@ Plugin 'VundleVim/Vundle.vim'
 Plugin 'tpope/vim-vinegar'
 Plugin 'tpope/vim-surround'
 Plugin 'pangloss/vim-javascript'
-Bundle 'altercation/vim-colors-solarized'
-Bundle 'mileszs/ack.vim'
+Plugin 'altercation/vim-colors-solarized'
+Plugin 'mileszs/ack.vim'
 Plugin 'junegunn/fzf.vim'
-Bundle 'scrooloose/nerdtree'
-Bundle 'ntpeters/vim-better-whitespace'
-Plugin 'Valloric/YouCompleteMe'
-Plugin 'tpope/vim-fugitive'
-Plugin 'vim-airline/vim-airline'
-Plugin 'vim-airline/vim-airline-themes'
 Plugin 'qpkorr/vim-bufkill'
 Plugin 'tomtom/tcomment_vim'
-
-" +++++++++++++++++++++++++
-" Config for bundles:
-"
-" === YouCompleteMe ===
-"let g:ycm_python_binary_path = '/usr/local/bin/python'
+Plugin 'ntpeters/vim-better-whitespace'
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
+Plugin 'Valloric/YouCompleteMe'
+"Plugin 'tpope/vim-fugitive'
+Plugin 'scrooloose/nerdtree'
 
 " +++++++++++++++++++++++++
 
 " All of your Plugins must be added before the following line
-call vundle#end()            " required
-filetype plugin indent on    " required
-" To ignore plugin indent changes, instead use:
-"filetype plugin on
-"
-" Brief help
-" :PluginList       - lists configured plugins
-" :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
-" :PluginSearch foo - searches for foo; append `!` to refresh local cache
-" :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
-"
-" see :h vundle for more details or wiki for FAQ
-" Put your non-Plugin stuff after this line
-"
-" -------------------------
+call vundle#end()
+
+filetype plugin indent on " required for vundle
 
 " Make backspace behave in a sane manner.
 set backspace=indent,eol,start
@@ -128,26 +110,11 @@ set wildignorecase
 set wildmode=full
 
 " Switch to the directory of the file that is being edited:
-set autochdir
+" set autochdir
 
-" === JS-syntax related ======================================================
+" === Buffers =================================================================
 
-" Enables syntax highlighting for Flow.
-let g:javascript_plugin_flow = 1
-
-" === Buffer-related =========================================================
-
-" Mac option+(1..0) -> buffer 1..10
-map <D-1>: b1<CR>
-map <D-2> :b2<CR>
-map <D-3> :b3<CR>
-map <D-4> :b4<CR>
-map <D-5> :b5<CR>
-map <D-6> :b6<CR>
-map <D-7> :b7<CR>
-map <D-8> :b8<CR>
-map <D-9> :b9<CR>
-map <D-0> :b10<CR>
+" Command+[ moves to the next buffer, Command+] moves to the previous one:
 map <D-[> :bprev<CR>
 map <D-]> :bnext<CR>
 map <D-\> :buffers<CR>
@@ -155,41 +122,37 @@ map <D-\> :buffers<CR>
 " Kill the current buffer with ctrl+c
 map <C-c> :BD!<cr>
 
-" Create a new, unnamed buffer with ctrl+b
-"map <leader>b :enew<cr>
+" === Navigation ==============================================================
 
-" Open $MYVIMRC for editing:
-map <silent> <leader>ev :e $MYVIMRC<cr>
-
-" Reload $MYVIMRC
-
-map <silent> <leader>rv :so $MYVIMRC<cr>
-
-" === Disable Command-z for undo
-map <D-Z> <nop>
-imap <D-Z> <nop>
-
-" === Arrow keys =============================================================
-
-" Disable arrow keys
-map <up> <nop>
-map <down> <nop>
-map <left> <nop>
-map <right> <nop>
-
+" Disable arrow keys:
+" - in insert mode
 imap <up> <nop>
 imap <down> <nop>
 imap <left> <nop>
 imap <right> <nop>
+" - in normal mode
+nmap <up> <nop>
+nmap <down> <nop>
+nmap <left> <nop>
+nmap <right> <nop>
 
-" === Display & status =======================================================
+" Navigate vim's autocomplete menu with the j & k keys:
+" https://stackoverflow.com/questions/4739901/scrolling-in-vim-autocomplete-box-with-jk-movement-keys
+" inoremap <expr> <down> ((pumvisible())?("\<C-n>"):("j"))
+" inoremap <expr> <up> ((pumvisible())?("\<C-p>"):("k"))
+
+" === Display & status ========================================================
 
 " Set the title of the window to the working directory:
 if has('gui_running')
   set guitablabel=(%N)\ %t\ %M
 endif
 
-" === Backup & history & undo-related ========================================
+" === Backup / History / Undo =================================================
+
+" Disable Command-z for undo
+map <D-Z> <nop>
+imap <D-Z> <nop>
 
 set history=1000
 set undolevels=1000
@@ -212,39 +175,46 @@ if !isdirectory(expand(&directory))
     call mkdir(expand(&directory), "p")
 endif
 
-" === Theme ==================================================================
+" === Theme ===================================================================
 
-" >>> Use Solarized
-
+" Use Solarized
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 
 " Dark solarized + molokai
 set background=dark
-" solarized options
-let g:solarized_visibility="high"
-let g:solarized_contrast="high"
-let g:solarized_termcolors=256
-let g:solarized_termtrans=1
 
+" solarized options
+let g:solarized_bold = 1
+let g:solarized_underline = 1
+let g:solarized_italic = 1
+let g:solarized_visibility = "high"
+let g:solarized_contrast = "high"
+let g:solarized_termcolors = 256
+let g:solarized_termtrans = 1
+
+" Actually apply it
 colorscheme solarized
 
-" === Strip whitespace on save ===============================================
+" === Auto commands ===========================================================
 
+" Strip whitespace on save
 autocmd FileType javascript autocmd BufWritePre <buffer> StripWhitespace
 
-" == fzf =====================================================================
+" === fzf =====================================================================
 
 " Point to the fzf homebrew installation:
 set rtp+=/usr/local/opt/fzf
 
 " Bind ctrl+p to fzf's :Files command
-map <C-p> :Files<CR>
+" map <C-p> :Files <C-R>=expand('%:h')<CR>
+map <C-p> :Files <CR>
 
-" === ag / ack ===============================================================
+" === ag / ack ================================================================
 
-map <leader>f :Ag 
+" Take whatever's in the copy buffer register #0 and search with that:
+map <leader>f :Ag
 
-" ===  NERDTree ==============================================================
+" ===  NERDTree ===============================================================
 
 let NERDTreeShowLineNumbers = 1
 autocmd FileType nerdtree setlocal relativenumber
@@ -256,31 +226,37 @@ let g:NERDTreeWinSize = 40
 let NERDTreeAutoDeleteBuffer = 1
 let NERDTreeMinimalUI = 1
 let NERDTreeDirArrows = 1
-
-" Map NERDTree to ctrl-n
-if empty($NERDTREE_START)
-  map <C-n> :NERDTreeToggle $HOME<CR>
-else
-  map <C-n> :NERDTreeToggle $NERDTREE_START_DIR<CR>
-endif
-
-" Auto-open NERDTree when vim starts
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
-
 " When a file is opened, close the NERDTree window:
-let NERDTreeQuitOnOpen = 1
+" let NERDTreeQuitOnOpen = 1
+" https://stackoverflow.com/questions/21888869/how-to-make-ctrlps-search-directory-change-according-to-nerdtrees-root
+let g:NERDTreeChDirMode = 2
+"" Show hidden files
+let g:NERDTreeShowFiles=1
+"" Show bookmarks
+" let g:NERDTreeShowBookmarks=1
+
+" Q: How can I open a NERDTree automatically when vim starts up?
+" A:
+"autocmd vimenter * NERDTree
+
+" Q: How can I open a NERDTree automatically when vim starts up if no files
+"    were specified?
+" A:
+"autocmd StdinReadPre * let s:std_in=1
+"autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+
+" Q: How can I open NERDTree automatically when vim starts up on opening a
+"    directory?
+" A:
+autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
+
+" Toggle NerdTree
+map <C-n> :NERDTreeToggle<CR>
 
 " Clear highlighting after pressing esc
 "nnoremap <esc> :noh<return><esc>
 
-" Show bookmarks
-" let g:NERDTreeShowBookmarks=1
-
-" Show hidden files
-let g:NERDTreeShowFiles=1
-
-" === vim-airline ===========================================================
+" === vim-airline =============================================================
 
 " Enable vim-airline
 let g:airline#extensions#tabline#enabled=1

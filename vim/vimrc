@@ -7,37 +7,26 @@ set nocompatible
 " Set leader to space
 let mapleader = "\<Space>"
 
-" ~~~~ Vundle setup ~~~~
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-" alternatively, pass a path where Vundle should install plugins
-"call vundle#begin('~/some/path/here')
-
-" let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
-
-" ++++ PLUGINS GO HERE ++++
-
-Plugin 'tpope/vim-vinegar'
-Plugin 'tpope/vim-surround'
-Plugin 'pangloss/vim-javascript'
-Plugin 'altercation/vim-colors-solarized'
-Plugin 'mileszs/ack.vim'
-Plugin 'junegunn/fzf.vim'
-Plugin 'qpkorr/vim-bufkill'
-Plugin 'tomtom/tcomment_vim'
-Plugin 'ntpeters/vim-better-whitespace'
-Plugin 'vim-airline/vim-airline'
-Plugin 'vim-airline/vim-airline-themes'
-Plugin 'Valloric/YouCompleteMe'
-"Plugin 'tpope/vim-fugitive'
-Plugin 'scrooloose/nerdtree'
-
-" +++++++++++++++++++++++++
-
-" All of your Plugins must be added before the following line
-call vundle#end()
+" ~~~~ vim-plug ~~~~
+call plug#begin('~/.vim/plugged')
+  Plug 'vim-syntastic/syntastic'
+  Plug 'tpope/vim-vinegar'
+  Plug 'tpope/vim-surround'
+  Plug 'pangloss/vim-javascript'
+  Plug 'altercation/vim-colors-solarized'
+  Plug 'mileszs/ack.vim'
+  Plug 'junegunn/fzf.vim'
+  Plug 'qpkorr/vim-bufkill'
+  Plug 'tomtom/tcomment_vim'
+  Plug 'ntpeters/vim-better-whitespace'
+  Plug 'vim-airline/vim-airline'
+  Plug 'vim-airline/vim-airline-themes'
+  Plug 'Valloric/YouCompleteMe'
+  "Plug 'tpope/vim-fugitive'
+  Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+  Plug 'https://github.com/popravich/rust.vim.git', { 'branch': 'fix_syntastic_issue' }
+  "Plug 'rust-lang/rust.vim'
+call plug#end()
 
 filetype plugin indent on " required for vundle
 
@@ -109,14 +98,41 @@ set wildmenu
 set wildignorecase
 set wildmode=full
 
+" Show the current command in the bottom-right part of vim.
+" For instance if you want to go to change the current word with 'cw', 'c'
+" will first be displayed as the pending command
+set showcmd
+
+" Don't redraw the screen for macros
+set lazyredraw
+
 " Switch to the directory of the file that is being edited:
 " set autochdir
+
+" === Mouse ===================================================================
+
+" Only allow mouse selection in normal+visual mode
+set mouse=nv
+"set mouse=
+set selectmode=
+
+" map <2-LeftMouse> ZZ
+
+" === Mac clipboard ===========================================================
+
+" https://coderwall.com/p/v-st8w/vim-copy-to-system-clipboard-on-a-mac
+" Copy to the system clipboard, in visual mode, via ''
+vmap '' :w !pbcopy<CR><CR>
 
 " === Buffers =================================================================
 
 " Command+[ moves to the next buffer, Command+] moves to the previous one:
 map <D-[> :bprev<CR>
+"map <c-[> :bprev<CR>
+"map <leader>[ :bprev<CR>
 map <D-]> :bnext<CR>
+"map <c-]> :bnext<CR>
+"map <leader>] :bnext<CR>
 map <D-\> :buffers<CR>
 
 " Kill the current buffer with ctrl+c
@@ -135,11 +151,6 @@ nmap <up> <nop>
 nmap <down> <nop>
 nmap <left> <nop>
 nmap <right> <nop>
-
-" Navigate vim's autocomplete menu with the j & k keys:
-" https://stackoverflow.com/questions/4739901/scrolling-in-vim-autocomplete-box-with-jk-movement-keys
-" inoremap <expr> <down> ((pumvisible())?("\<C-n>"):("j"))
-" inoremap <expr> <up> ((pumvisible())?("\<C-p>"):("k"))
 
 " === Display & status ========================================================
 
@@ -195,6 +206,11 @@ let g:solarized_termtrans = 1
 " Actually apply it
 colorscheme solarized
 
+" === Useful shortcuts ========================================================
+
+" Replace the current word with the previously yanked word
+map <C-j> cw<C-r>0<ESC>
+
 " === Auto commands ===========================================================
 
 " Strip whitespace on save
@@ -213,6 +229,54 @@ map <C-p> :Files <CR>
 
 " Take whatever's in the copy buffer register #0 and search with that:
 map <leader>f :Ag
+
+" === Syntastic ===============================================================
+
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+" If this variable is enabled, syntastic in active mode will run syntax checks
+" when buffers are first loaded, as well as on saving
+let g:syntastic_check_on_open = 1
+
+" In active mode syntax checks are normally run whenever buffers are written to
+" disk, even when the writes happen just before quitting Vim.
+let g:syntastic_check_on_wq = 1
+
+" Use this option to tell syntastic whether to use the `:sign` interface to mark
+let g:syntastic_enable_signs = 1
+let g:syntastic_enable_balloons = 1
+
+" Enable this option to tell syntastic to always stick any detected errors
+" into the |location-list|
+let g:syntastic_always_populate_loc_list = 1
+
+" When set to 1 the error window will be automatically opened when errors are
+" detected, and closed when none are detected
+" let g:syntastic_auto_loc_list = 1
+
+" Use this option to tell syntastic whether to use syntax highlighting to mark
+" errors (where possible)
+let g:syntastic_enable_highlighting = 1
+
+" Sets the number of lines the error/warning location list is displayed with
+let g:syntastic_loc_list_height = 3
+
+highlight SyntasticErrorSign guifg=white guibg=red
+highlight SyntasticErrorLine guibg=#2f0000
+
+" === Syntastic > Rust ========================================================
+
+" Auto format *.rs files upon save
+" let g:rustfmt_autosave = 1
+let g:syntastic_rust_checkers = ['cargo']
+"let g:syntastic_rust_checkers = ['rustc']
+let g:rustc_path = $HOME."/.cargo/bin/rustc"
+
+" === YouCompleteMe > Rust ====================================================
+
+let g:rust_src_path = $HOME.'/.cargo/rust-repo/src'
 
 " ===  NERDTree ===============================================================
 

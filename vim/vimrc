@@ -6,28 +6,26 @@ set nocompatible
 
 " Set leader to space
 let mapleader = "\<Space>"
+"let mapleader = "\\"
 
 " ~~~~ vim-plug ~~~~
 call plug#begin('~/.vim/plugged')
-  Plug 'vim-syntastic/syntastic'
-  Plug 'tpope/vim-vinegar'
-  Plug 'tpope/vim-surround'
-  Plug 'pangloss/vim-javascript'
-  Plug 'altercation/vim-colors-solarized'
-  Plug 'mileszs/ack.vim'
-  Plug 'junegunn/fzf.vim'
-  Plug 'qpkorr/vim-bufkill'
-  Plug 'tomtom/tcomment_vim'
-  Plug 'ntpeters/vim-better-whitespace'
-  Plug 'vim-airline/vim-airline'
-  Plug 'vim-airline/vim-airline-themes'
-  Plug 'Valloric/YouCompleteMe'
-  "Plug 'tpope/vim-fugitive'
-  Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-  Plug 'https://github.com/popravich/rust.vim.git', { 'branch': 'fix_syntastic_issue' }
-  "Plug 'rust-lang/rust.vim'
+Plug 'vim-syntastic/syntastic'
+Plug 'tpope/vim-vinegar'
+Plug 'tpope/vim-surround'
+Plug 'mileszs/ack.vim'
+Plug 'junegunn/fzf.vim'
+Plug 'qpkorr/vim-bufkill'
+Plug 'tomtom/tcomment_vim'
+Plug 'ntpeters/vim-better-whitespace'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'Valloric/YouCompleteMe'
+Plug 'scrooloose/nerdtree'
+   "Plug 'tpope/vim-fugitive'
+Plug 'rust-lang/rust.vim'
 call plug#end()
-
+"
 filetype plugin indent on " required for vundle
 
 " Make backspace behave in a sane manner.
@@ -84,6 +82,9 @@ set incsearch
 " searches are case insensitive...
 set ignorecase
 
+" auto re-read file contents if they've changed on disk:
+set autoread
+
 " clear highlighted search matches
 nnoremap <leader><space> :nohlsearch<CR>
 
@@ -126,17 +127,27 @@ vmap '' :w !pbcopy<CR><CR>
 
 " === Buffers =================================================================
 
+" Show the list of buffers
+map <leader>b :Buffers<CR>
+
 " Command+[ moves to the next buffer, Command+] moves to the previous one:
 map <D-[> :bprev<CR>
-"map <c-[> :bprev<CR>
-"map <leader>[ :bprev<CR>
+map <leader>[ :bprev<CR>
 map <D-]> :bnext<CR>
-"map <c-]> :bnext<CR>
-"map <leader>] :bnext<CR>
-map <D-\> :buffers<CR>
+map <leader>] :bnext<CR>
+
+" Same with Tab
+map <S-Tab> :bprev<CR>
+map <Tab> :bnext<CR>
 
 " Kill the current buffer with ctrl+c
 map <C-c> :BD!<cr>
+"map <C-c> :bd<CR>
+
+" === Windows " ===============================================================
+
+" <ctrl+tab> show all windows
+noremap <C-Tab> :Windows<CR>
 
 " === Navigation ==============================================================
 
@@ -211,19 +222,27 @@ colorscheme solarized
 " Replace the current word with the previously yanked word
 map <C-j> cw<C-r>0<ESC>
 
-" === Auto commands ===========================================================
+" === better whitespace =======================================================
 
 " Strip whitespace on save
-autocmd FileType javascript autocmd BufWritePre <buffer> StripWhitespace
+let g:better_whitespace_enabled = 1
+let g:strip_whitespace_confirm = 0
+let g:strip_whitespace_on_save = 1
 
 " === fzf =====================================================================
 
 " Point to the fzf homebrew installation:
 set rtp+=/usr/local/opt/fzf
 
+" [Buffers] Jump to the existing window if possible
+let g:fzf_buffers_jump = 1
+
 " Bind ctrl+p to fzf's :Files command
 " map <C-p> :Files <C-R>=expand('%:h')<CR>
 map <C-p> :Files <CR>
+
+" Prevent fzf from opening a file in the Nerdtree buffer
+nnoremap <silent> <expr> <C-p> (expand('%') =~ 'NERD_tree' ? "\<c-w>\<c-w>" : '').":FZF\<cr>"
 
 " === ag / ack ================================================================
 
@@ -238,7 +257,7 @@ set statusline+=%*
 
 " If this variable is enabled, syntastic in active mode will run syntax checks
 " when buffers are first loaded, as well as on saving
-let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_open = 0
 
 " In active mode syntax checks are normally run whenever buffers are written to
 " disk, even when the writes happen just before quitting Vim.
@@ -269,14 +288,43 @@ highlight SyntasticErrorLine guibg=#2f0000
 " === Syntastic > Rust ========================================================
 
 " Auto format *.rs files upon save
-" let g:rustfmt_autosave = 1
-let g:syntastic_rust_checkers = ['cargo']
+let g:rustfmt_autosave = 1
+"let g:syntastic_rust_checkers = ['cargo']
 "let g:syntastic_rust_checkers = ['rustc']
-let g:rustc_path = $HOME."/.cargo/bin/rustc"
+"let g:rustc_path = $HOME."/.cargo/bin/rustc"
 
 " === YouCompleteMe > Rust ====================================================
 
 let g:rust_src_path = $HOME.'/.cargo/rust-repo/src'
+
+" === netrw ===================================================================
+
+" Adapted from https://shapeshed.com/vim-netrw/
+
+" let g:netrw_liststyle = 3
+" let g:netrw_banner = 0
+" let g:netrw_winsize = 18
+"
+" let g:NetrwIsOpen=0
+"
+" function! ToggleNetrw()
+"     if g:NetrwIsOpen
+"         let i = bufnr("$")
+"         while (i >= 1)
+"             if (getbufvar(i, "&filetype") == "netrw")
+"                 silent exe "bwipeout " . i
+"             endif
+"             let i-=1
+"         endwhile
+"         let g:NetrwIsOpen=0
+"     else
+"         let g:NetrwIsOpen=1
+"         silent Lexplore
+"     endif
+" endfunction
+"
+" " Toggle netrw left-hand list view with ctrl+n
+" map <C-n> :call ToggleNetrw()<CR>
 
 " ===  NERDTree ===============================================================
 
@@ -318,7 +366,7 @@ autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in
 map <C-n> :NERDTreeToggle<CR>
 
 " Clear highlighting after pressing esc
-"nnoremap <esc> :noh<return><esc>
+nnoremap <esc> :noh<return><esc>
 
 " === vim-airline =============================================================
 

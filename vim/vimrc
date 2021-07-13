@@ -1,31 +1,32 @@
-" ~~~~ Mike Woods .vimrc ~~~~
-"
-" Use Vim settings, rather than Vi settings (much better!).
+" Use Vim settings:
 " This must be first, because it changes other options as a side effect.
 set nocompatible
 
 " Set leader to space
 let mapleader = "\<Space>"
-"let mapleader = "\\"
+
+" Leader keypress delay before accepting command:
+set timeoutlen=500
 
 " ~~~~ vim-plug ~~~~
 call plug#begin('~/.vim/plugged')
-Plug 'vim-syntastic/syntastic'
-Plug 'tpope/vim-vinegar'
-Plug 'tpope/vim-surround'
-Plug 'mileszs/ack.vim'
-Plug 'junegunn/fzf.vim'
-Plug 'qpkorr/vim-bufkill'
-Plug 'tomtom/tcomment_vim'
-Plug 'ntpeters/vim-better-whitespace'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-Plug 'Valloric/YouCompleteMe'
-Plug 'scrooloose/nerdtree'
-   "Plug 'tpope/vim-fugitive'
-Plug 'rust-lang/rust.vim'
+ Plug 'vim-syntastic/syntastic'
+ Plug 'tpope/vim-vinegar'
+ Plug 'tpope/vim-surround'
+ Plug 'mileszs/ack.vim'
+ Plug 'junegunn/fzf.vim'
+ Plug 'qpkorr/vim-bufkill'
+ Plug 'tomtom/tcomment_vim'
+ Plug 'ntpeters/vim-better-whitespace'
+ Plug 'vim-airline/vim-airline'
+ Plug 'vim-airline/vim-airline-themes'
+ Plug 'Valloric/YouCompleteMe'
+ Plug 'preservim/nerdtree'
+ "Plug 'tpope/vim-fugitive'
+ Plug 'kshenoy/vim-signature'
+ Plug 'rust-lang/rust.vim'
 call plug#end()
-"
+
 filetype plugin indent on " required for vundle
 
 " Make backspace behave in a sane manner.
@@ -104,9 +105,6 @@ set wildmode=full
 " will first be displayed as the pending command
 set showcmd
 
-" Don't redraw the screen for macros
-set lazyredraw
-
 " Switch to the directory of the file that is being edited:
 " set autochdir
 
@@ -117,51 +115,68 @@ set mouse=nv
 "set mouse=
 set selectmode=
 
-" map <2-LeftMouse> ZZ
-
 " === Mac clipboard ===========================================================
 
 " https://coderwall.com/p/v-st8w/vim-copy-to-system-clipboard-on-a-mac
 " Copy to the system clipboard, in visual mode, via ''
-vmap '' :w !pbcopy<CR><CR>
+vnoremap '' :w !pbcopy<CR><CR>
 
 " === Buffers =================================================================
 
-" Show the list of buffers
-map <leader>b :Buffers<CR>
+" Show the list of buffers using fzf:
+noremap <leader>b :Buffers<CR>
+noremap <leader><Tab> :Buffers<CR>
 
-" Command+[ moves to the next buffer, Command+] moves to the previous one:
-map <D-[> :bprev<CR>
-map <leader>[ :bprev<CR>
-map <D-]> :bnext<CR>
-map <leader>] :bnext<CR>
+" Use Bufkill's :BD command to close a buffer while preserving the window:
+noremap <C-c>c :BD!<CR>
 
-" Same with Tab
-map <S-Tab> :bprev<CR>
-map <Tab> :bnext<CR>
+" === Windows ================================================================
 
+" Cycle forward through windows:
+nnoremap <Tab> <C-w>w
+
+" Cycle backward through windows:
+nnoremap <S-Tab> <C-w>W
+
+" Show the list of all windows:
+nnoremap <leader>w :Windows<CR>
+
+" === Tabs ===================================================================
+
+" Ctrl+\ = next tab
+noremap <C-\> gt
+
+" Ctrl+c = close tab
+"noremap <C-c>c :tabclose<CR>
+"
 " Kill the current buffer with ctrl+c
-map <C-c> :BD!<cr>
+"map <C-c> :BD!<cr>
 "map <C-c> :bd<CR>
-
-" === Windows " ===============================================================
-
-" <ctrl+tab> show all windows
-noremap <C-Tab> :Windows<CR>
+"
+" Show all tabs
+noremap <leader>t :tabs<CR>
 
 " === Navigation ==============================================================
 
 " Disable arrow keys:
-" - in insert mode
+
+" - in insert mode:
 imap <up> <nop>
 imap <down> <nop>
 imap <left> <nop>
 imap <right> <nop>
-" - in normal mode
+
+" - in normal mode:
 nmap <up> <nop>
 nmap <down> <nop>
 nmap <left> <nop>
 nmap <right> <nop>
+
+" - in visual mode:
+vmap <up> <nop>
+vmap <down> <nop>
+vmap <left> <nop>
+vmap <right> <nop>
 
 " === Display & status ========================================================
 
@@ -172,9 +187,9 @@ endif
 
 " === Backup / History / Undo =================================================
 
-" Disable Command-z for undo
-map <D-Z> <nop>
-imap <D-Z> <nop>
+" Disable Command-z (D) for undo in MacVim:
+noremap <D-Z> <nop>
+inoremap <D-Z> <nop>
 
 set history=1000
 set undolevels=1000
@@ -220,7 +235,7 @@ colorscheme solarized
 " === Useful shortcuts ========================================================
 
 " Replace the current word with the previously yanked word
-map <C-j> cw<C-r>0<ESC>
+noremap <C-j> cw<C-r>0<ESC>
 
 " === better whitespace =======================================================
 
@@ -239,7 +254,7 @@ let g:fzf_buffers_jump = 1
 
 " Bind ctrl+p to fzf's :Files command
 " map <C-p> :Files <C-R>=expand('%:h')<CR>
-map <C-p> :Files <CR>
+noremap <C-p> :Files <CR>
 
 " Prevent fzf from opening a file in the Nerdtree buffer
 nnoremap <silent> <expr> <C-p> (expand('%') =~ 'NERD_tree' ? "\<c-w>\<c-w>" : '').":FZF\<cr>"
@@ -247,7 +262,7 @@ nnoremap <silent> <expr> <C-p> (expand('%') =~ 'NERD_tree' ? "\<c-w>\<c-w>" : ''
 " === ag / ack ================================================================
 
 " Take whatever's in the copy buffer register #0 and search with that:
-map <leader>f :Ag
+noremap <leader>f :Ag<Space>
 
 " === Syntastic ===============================================================
 
@@ -284,6 +299,9 @@ let g:syntastic_loc_list_height = 3
 
 highlight SyntasticErrorSign guifg=white guibg=red
 highlight SyntasticErrorLine guibg=#2f0000
+
+let g:syntastic_python_python_exec = 'python3'
+let g:syntastic_python_checkers = ['python']
 
 " === Syntastic > Rust ========================================================
 
@@ -347,23 +365,8 @@ let g:NERDTreeShowFiles=1
 "" Show bookmarks
 " let g:NERDTreeShowBookmarks=1
 
-" Q: How can I open a NERDTree automatically when vim starts up?
-" A:
-"autocmd vimenter * NERDTree
-
-" Q: How can I open a NERDTree automatically when vim starts up if no files
-"    were specified?
-" A:
-"autocmd StdinReadPre * let s:std_in=1
-"autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
-
-" Q: How can I open NERDTree automatically when vim starts up on opening a
-"    directory?
-" A:
-autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
-
 " Toggle NerdTree
-map <C-n> :NERDTreeToggle<CR>
+noremap <C-n> :NERDTreeToggle<CR>
 
 " Clear highlighting after pressing esc
 nnoremap <esc> :noh<return><esc>
@@ -375,4 +378,8 @@ let g:airline#extensions#tabline#enabled=1
 
 " Show the buffer number next to the name:
 let g:airline#extensions#tabline#buffer_nr_show=1
+
+" === Format JSON =============================================================
+
+:command FormatJson %!python -m json.tool
 

@@ -44,6 +44,9 @@ syntax on
 " Enable file type detection and do language-dependent indenting.
 filetype plugin indent on
 
+" Enable lazy redraw
+set lazyredraw
+
 " Show line numbers
 set number
 
@@ -243,9 +246,14 @@ if !isdirectory(expand(&directory))
     call mkdir(expand(&directory), "p")
 endif
 
+" === Marks ==================================================================
+
+" Show marks (with fzf):
+nnoremap <leader>m :Marks<CR>
+
 " === Registers ==============================================================
 
-" Show registers:
+" Show registers
 nnoremap <leader>r :registers<CR>
 
 " === Complete menu behavior =================================================
@@ -296,14 +304,19 @@ let g:fzf_buffers_jump = 1
 " Bind ctrl+p to fzf's :Files command
 " map <C-p> :Files <C-R>=expand('%:h')<CR>
 noremap <leader>p :Files <CR>
+noremap <leader>P :GFiles <CR>
 
 " Prevent fzf from opening a file in the Nerdtree buffer
 nnoremap <silent> <expr> <leader>p (expand('%') =~ 'NERD_tree' ? "\<c-w>\<c-w>" : '').":FZF\<cr>"
 
-" === ag / ack ================================================================
+" === Search  ================================================================
+"
+" Use Ripgrep + fzf (requires `brew install ripgrep`)
+noremap <leader>f :Rg<CR>
 
-" Take whatever's in the copy buffer register #0 and search with that:
-noremap <leader>f :Ag<Space>
+" Use the silver searcher for finding a file
+" (requires `brew install the_silver_searcher`)
+noremap <leader>F :Ag<Space>
 
 " === Syntastic ===============================================================
 

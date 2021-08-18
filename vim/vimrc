@@ -10,7 +10,7 @@ set timeoutlen=500
 
 " ~~~~ vim-plug ~~~~
 call plug#begin('~/.vim/plugged')
- Plug 'vim-syntastic/syntastic'
+ "Plug 'vim-syntastic/syntastic'
  Plug 'tpope/vim-vinegar'
  Plug 'tpope/vim-surround'
  Plug 'mileszs/ack.vim'
@@ -20,14 +20,20 @@ call plug#begin('~/.vim/plugged')
  Plug 'ntpeters/vim-better-whitespace'
  Plug 'vim-airline/vim-airline'
  Plug 'vim-airline/vim-airline-themes'
- Plug 'Valloric/YouCompleteMe'
+ "Plug 'Valloric/YouCompleteMe'
  Plug 'preservim/nerdtree'
  "Plug 'tpope/vim-fugitive'
  Plug 'kshenoy/vim-signature'
- Plug 'rust-lang/rust.vim'
+ "Plug 'rust-lang/rust.vim'
+ Plug 'neoclide/coc.nvim', {'branch': 'release'}
+ Plug 'autozimu/LanguageClient-neovim', {
+     \ 'branch': 'next',
+     \ 'do': 'bash install.sh',
+     \ }
 call plug#end()
 
-filetype plugin indent on " required for vundle
+" Required for vundle: TODO (remove)
+filetype plugin indent on
 
 " Make backspace behave in a sane manner.
 set backspace=indent,eol,start
@@ -37,6 +43,9 @@ syntax on
 
 " Enable file type detection and do language-dependent indenting.
 filetype plugin indent on
+
+" Enable lazy redraw
+set lazyredraw
 
 " Show line numbers
 set number
@@ -95,21 +104,46 @@ set smartcase
 " show matching braces and brackets
 set showmatch
 
+" add angle brackets to matching:
+set matchpairs+=<:>
+
 " enable wildmenu"
 set wildmenu
 set wildignorecase
 set wildmode=full
+
+" Set how autocompletion menus work:
+set completeopt=menuone,longest
 
 " Show the current command in the bottom-right part of vim.
 " For instance if you want to go to change the current word with 'cw', 'c'
 " will first be displayed as the pending command
 set showcmd
 
+" Give more space for displaying messages.
+set cmdheight=2
+
 " Switch to the directory of the file that is being edited:
 " set autochdir
 
-" enable true color terminal support:
-set termguicolors
+" Enable true color terminal support:
+if (has("termguicolors"))
+  set termguicolors
+endif
+
+" Used by CoC and other plugins:
+"
+" Explanation: The length of time Vim waits after you stop typing before it
+"
+" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
+" delays and poor user experience.
+set updatetime=250
+
+" Use the system clipboard if possible:
+"   https://vim.fandom.com/wiki/Accessing_the_system_clipboard
+if (has("clipboard"))
+  set clipboard=unnamedplus
+endif
 
 " === Mouse ===================================================================
 
@@ -117,12 +151,6 @@ set termguicolors
 set mouse=nv
 "set mouse=
 set selectmode=
-
-" === Mac clipboard ===========================================================
-
-" https://coderwall.com/p/v-st8w/vim-copy-to-system-clipboard-on-a-mac
-" Copy to the system clipboard, in visual mode, via ''
-vnoremap '' :w !pbcopy<CR><CR>
 
 " === Buffers =================================================================
 
@@ -132,6 +160,9 @@ noremap <leader><Tab> :Buffers<CR>
 
 " Use Bufkill's :BD command to close a buffer while preserving the window:
 noremap <C-c>c :BD!<CR>
+
+noremap <leader>] :bnext<CR>
+noremap <leader>[ :bprev<CR>
 
 " === Windows ================================================================
 
@@ -215,6 +246,29 @@ if !isdirectory(expand(&directory))
     call mkdir(expand(&directory), "p")
 endif
 
+" === Marks ==================================================================
+
+" Show marks (with fzf):
+nnoremap <leader>m :Marks<CR>
+
+" === Registers ==============================================================
+
+" Show registers
+nnoremap <leader>r :registers<CR>
+
+" === Complete menu behavior =================================================
+
+" Navigate the complete menu items using <up> and <down> like <C-n> and <C-p>:
+inoremap <expr> <Down> pumvisible() ? "<C-n>" : "<Down>"
+inoremap <expr> <Up> pumvisible() ? "<C-p>" : "<Up>"
+
+" Select the complete menu item like <C-y> would with <CR>:
+inoremap <expr> <Right> pumvisible() ? "<C-y>" : "<Right>"
+inoremap <expr> <CR> pumvisible() ? "<C-y>" : "<CR>"
+
+" Cancel the complete menu like <C-e> would with <Left>:
+inoremap <expr> <Left> pumvisible() ? "<C-e>" : "<Left>"
+
 " === Theme ===================================================================
 
 " Note: Needs `set termguicolors` in order to work
@@ -249,66 +303,99 @@ let g:fzf_buffers_jump = 1
 
 " Bind ctrl+p to fzf's :Files command
 " map <C-p> :Files <C-R>=expand('%:h')<CR>
-noremap <C-p> :Files <CR>
+noremap <leader>p :Files <CR>
+noremap <leader>P :GFiles <CR>
 
 " Prevent fzf from opening a file in the Nerdtree buffer
-nnoremap <silent> <expr> <C-p> (expand('%') =~ 'NERD_tree' ? "\<c-w>\<c-w>" : '').":FZF\<cr>"
+nnoremap <silent> <expr> <leader>p (expand('%') =~ 'NERD_tree' ? "\<c-w>\<c-w>" : '').":FZF\<cr>"
 
-" === ag / ack ================================================================
+" === Search  ================================================================
+"
+" Use Ripgrep + fzf (requires `brew install ripgrep`)
+noremap <leader>f :Rg<CR>
 
-" Take whatever's in the copy buffer register #0 and search with that:
-noremap <leader>f :Ag<Space>
+" Use the silver searcher for finding a file
+" (requires `brew install the_silver_searcher`)
+noremap <leader>F :Ag<Space>
 
 " === Syntastic ===============================================================
 
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
+"set statusline+=%#warningmsg#
+"set statusline+=%{SyntasticStatuslineFlag()}
+"set statusline+=%*
+"
+"" If this variable is enabled, syntastic in active mode will run syntax checks
+"" when buffers are first loaded, as well as on saving
+"let g:syntastic_check_on_open = 0
+"
+"" In active mode syntax checks are normally run whenever buffers are written to
+"" disk, even when the writes happen just before quitting Vim.
+"let g:syntastic_check_on_wq = 1
+"
+"" Use this option to tell syntastic whether to use the `:sign` interface to mark
+"let g:syntastic_enable_signs = 1
+"let g:syntastic_enable_balloons = 1
+"
+"" Enable this option to tell syntastic to always stick any detected errors
+"" into the |location-list|
+"let g:syntastic_always_populate_loc_list = 1
+"
+"" When set to 1 the error window will be automatically opened when errors are
+"" detected, and closed when none are detected
+"" let g:syntastic_auto_loc_list = 1
+"
+"" Use this option to tell syntastic whether to use syntax highlighting to mark
+"" errors (where possible)
+"let g:syntastic_enable_highlighting = 1
+"
+"" Sets the number of lines the error/warning location list is displayed with
+"let g:syntastic_loc_list_height = 3
+"
+"highlight SyntasticErrorSign guifg=white guibg=red
+"highlight SyntasticErrorLine guibg=#2f0000
+"
+"let g:syntastic_python_python_exec = 'python3'
+"let g:syntastic_python_checkers = ['python']
 
-" If this variable is enabled, syntastic in active mode will run syntax checks
-" when buffers are first loaded, as well as on saving
-let g:syntastic_check_on_open = 0
+" === LSP - LanguageClient-neovim support ====================================
 
-" In active mode syntax checks are normally run whenever buffers are written to
-" disk, even when the writes happen just before quitting Vim.
-let g:syntastic_check_on_wq = 1
+"\ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
+let g:LanguageClient_serverCommands = {
+    \ 'rust': ['rust-analyzer'],
+    \ }
 
-" Use this option to tell syntastic whether to use the `:sign` interface to mark
-let g:syntastic_enable_signs = 1
-let g:syntastic_enable_balloons = 1
+" === CoC bindings & behavior ================================================
 
-" Enable this option to tell syntastic to always stick any detected errors
-" into the |location-list|
-let g:syntastic_always_populate_loc_list = 1
+" From https://oren.github.io/articles/rust/neovim/
 
-" When set to 1 the error window will be automatically opened when errors are
-" detected, and closed when none are detected
-" let g:syntastic_auto_loc_list = 1
+" GoTo code navigation.
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
 
-" Use this option to tell syntastic whether to use syntax highlighting to mark
-" errors (where possible)
-let g:syntastic_enable_highlighting = 1
+" Use K to show documentation in preview window.
+nnoremap <silent> K :call <SID>show_documentation()<CR>
 
-" Sets the number of lines the error/warning location list is displayed with
-let g:syntastic_loc_list_height = 3
-
-highlight SyntasticErrorSign guifg=white guibg=red
-highlight SyntasticErrorLine guibg=#2f0000
-
-let g:syntastic_python_python_exec = 'python3'
-let g:syntastic_python_checkers = ['python']
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  else
+    call CocAction('doHover')
+  endif
+endfunction
 
 " === Syntastic > Rust ========================================================
 
 " Auto format *.rs files upon save
-let g:rustfmt_autosave = 1
-let g:syntastic_rust_checkers = ['cargo']
+"let g:rustfmt_autosave = 1
+"let g:syntastic_rust_checkers = ['cargo']
 "let g:syntastic_rust_checkers = ['rustc']
 "let g:rustc_path = $HOME."/.cargo/bin/rustc"
 
 " === YouCompleteMe > Rust ====================================================
 
-let g:rust_src_path = $HOME.'/.cargo/rust-repo/src'
+"let g:rust_src_path = $HOME.'/.cargo/rust-repo/src'
 
 " === netrw ===================================================================
 
@@ -361,7 +448,7 @@ let g:NERDTreeShowFiles=1
 " let g:NERDTreeShowBookmarks=1
 
 " Toggle NerdTree
-noremap <C-n> :NERDTreeToggle<CR>
+noremap <leader>n :NERDTreeToggle<CR>
 
 " Clear highlighting after pressing esc
 nnoremap <esc> :noh<return><esc>

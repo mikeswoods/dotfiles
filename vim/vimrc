@@ -6,7 +6,7 @@ set nocompatible
 let mapleader = "\<Space>"
 
 " Leader keypress delay before accepting command:
-set timeoutlen=500
+set timeoutlen=750
 
 " ~~~~ vim-plug ~~~~
 call plug#begin('~/.vim/plugged')
@@ -155,7 +155,7 @@ set selectmode=
 " === Buffers =================================================================
 
 " Show the list of buffers using fzf:
-noremap <leader>b :Buffers<CR>
+noremap <nowait> <leader>b :Buffers<CR>
 noremap <leader><Tab> :Buffers<CR>
 
 " Use Bufkill's :BD command to close a buffer while preserving the window:
@@ -255,6 +255,11 @@ nnoremap <leader>m :Marks<CR>
 
 " Show registers
 nnoremap <leader>r :registers<CR>
+
+" === wildmenu key behavior ==================================================
+"
+"
+
 
 " === Complete menu behavior =================================================
 

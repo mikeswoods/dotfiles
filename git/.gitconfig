@@ -1,0 +1,30 @@
+[user]
+	name = Mike Woods
+  email = *********
+[ui "color"]
+	ui = always
+[color]
+  ui = true
+[merge]
+	tool = nvim -d
+[alias]
+  cl = clone --recurse-submodules -j8
+  co = checkout
+  st = status
+  br = branch
+  s = status
+  tree = log --graph --oneline --all
+  pullr = pull -r
+  pushi = !"git push -u origin $(git branch | grep '^*' | colrm 1 2)"
+  pushf = push --force-with-lease
+  pushff = push --force
+[core]
+	editor = nvim
+  #pager = cat
+[pager]
+	branch = false
+[diff]
+	colorMoved = zebra
+[pull]
+  rebase = false
+

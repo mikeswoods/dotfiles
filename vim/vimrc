@@ -397,8 +397,10 @@ let g:NERDTreeShowFiles=1
 " Toggle NerdTree
 noremap <leader>n :NERDTreeToggle<CR>
 
-" Clear highlighting after pressing esc
-nnoremap <esc> :noh<return><esc>
+" === Custom ESC behavior =====================================================
+
+" Clear highlighting after pressing esc and dismiss any CoC float menus
+nnoremap <esc> :noh<return><esc> call coc#floats#close_all()
 
 " === vim-airline =============================================================
 

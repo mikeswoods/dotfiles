@@ -10,18 +10,14 @@ set timeoutlen=750
 
 " ~~~~ vim-plug ~~~~
 call plug#begin('~/.vim/plugged')
- Plug 'tpope/vim-vinegar'
+ "Plug 'tpope/vim-vinegar'
  Plug 'tpope/vim-surround'
- Plug 'mileszs/ack.vim'
  Plug 'junegunn/fzf.vim'
  Plug 'qpkorr/vim-bufkill'
  Plug 'tomtom/tcomment_vim'
  Plug 'ntpeters/vim-better-whitespace'
  Plug 'vim-airline/vim-airline'
  Plug 'vim-airline/vim-airline-themes'
- Plug 'preservim/nerdtree'
- "Plug 'tpope/vim-fugitive'
- Plug 'kshenoy/vim-signature'
  Plug 'neoclide/coc.nvim', {'branch': 'release'}
 call plug#end()
 
@@ -39,6 +35,9 @@ filetype plugin indent on
 
 " Enable lazy redraw
 set lazyredraw
+
+" Enable sign column
+set signcolumn=yes
 
 " Show line numbers
 set number
@@ -68,7 +67,7 @@ set shiftwidth=2
 set statusline+=%F
 
 " Tabs are spaces
-set expandtab
+"set expandtab
 
 " Highlight current line
 set cursorline
@@ -304,9 +303,6 @@ let g:fzf_buffers_jump = 1
 noremap <leader>p :Files <CR>
 noremap <leader>P :GFiles <CR>
 
-" Prevent fzf from opening a file in the Nerdtree buffer
-nnoremap <silent> <expr> <leader>p (expand('%') =~ 'NERD_tree' ? "\<c-w>\<c-w>" : '').":FZF\<cr>"
-
 " === Search  ================================================================
 "
 " Use Ripgrep + fzf (requires `brew install ripgrep`)
@@ -322,9 +318,14 @@ noremap <leader>F :Ag<Space>
 
 " GoTo code navigation.
 nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gD <Plug>(coc-declaration)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
+nmap <silent> gR <Plug>(coc-references-used)
+
+" Run the Code Lens action on the current line
+nmap <leader>cl  <Plug>(coc-codelens-action)
 
 " Taken from https://superuser.com/a/1736756
 "
@@ -334,73 +335,32 @@ inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
                               \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 " Use K to show documentation in preview window.
-nnoremap <silent> K :call <SID>show_documentation()<CR>
+"nnoremap <silent> K :call <SID>ShowDocumentation()<CR>
+nnoremap <silent> K :call ShowDocumentation()<CR>
 
-function! s:show_documentation()
+function! ShowDocumentation()
   if (index(['vim','help'], &filetype) >= 0)
     execute 'h '.expand('<cword>')
   else
-    call CocAction('doHover')
+    if CocAction('hasProvider', 'hover')
+      call CocActionAsync('doHover')
+    else
+      call feedkeys('K', 'in')
+    endif
   endif
 endfunction
 
 " === netrw ===================================================================
-
-" Adapted from https://shapeshed.com/vim-netrw/
-
-" let g:netrw_liststyle = 3
-" let g:netrw_banner = 0
-" let g:netrw_winsize = 18
-"
-" let g:NetrwIsOpen=0
-"
-" function! ToggleNetrw()
-"     if g:NetrwIsOpen
-"         let i = bufnr("$")
-"         while (i >= 1)
-"             if (getbufvar(i, "&filetype") == "netrw")
-"                 silent exe "bwipeout " . i
-"             endif
-"             let i-=1
-"         endwhile
-"         let g:NetrwIsOpen=0
-"     else
-"         let g:NetrwIsOpen=1
-"         silent Lexplore
-"     endif
-" endfunction
 "
 " " Toggle netrw left-hand list view with ctrl+n
-" map <C-n> :call ToggleNetrw()<CR>
-
-" ===  NERDTree ===============================================================
-
-let NERDTreeShowLineNumbers = 1
-autocmd FileType nerdtree setlocal relativenumber
-
-" The following two options make it work well with vinegar.vim
-let NERDTreeHijackNetrw = 1
-let g:NERDTreeMapUpdir = "-"
-let g:NERDTreeWinSize = 40
-let NERDTreeAutoDeleteBuffer = 1
-let NERDTreeMinimalUI = 1
-let NERDTreeDirArrows = 1
-" When a file is opened, close the NERDTree window:
-" let NERDTreeQuitOnOpen = 1
-" https://stackoverflow.com/questions/21888869/how-to-make-ctrlps-search-directory-change-according-to-nerdtrees-root
-let g:NERDTreeChDirMode = 2
-"" Show hidden files
-let g:NERDTreeShowFiles=1
-"" Show bookmarks
-" let g:NERDTreeShowBookmarks=1
-
-" Toggle NerdTree
-noremap <leader>n :NERDTreeToggle<CR>
+" https://www.reddit.com/r/neovim/comments/z86ife/check_if_explore_is_open/
+lua vim.keymap.set("n", "<leader>n", function() if (vim.api.nvim_buf_get_option(0, "filetype")=="netrw") then vim.api.nvim_exec("close", false) else vim.api.nvim_exec(":Sex!", false) end end, {})
 
 " === Custom ESC behavior =====================================================
 
 " Clear highlighting after pressing esc and dismiss any CoC float menus
-nnoremap <esc> :noh<return><esc> call coc#floats#close_all()
+nnoremap <esc> :noh<return><esc>
+"nnoremap <esc> :noh<return><esc> call coc#floats#close_all()
 
 " === vim-airline =============================================================
 

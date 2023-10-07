@@ -1,3 +1,9 @@
+" Compatibility shim when upgrading from vim -> neovim
+if has('nvim')
+	set runtimepath^=~/.vim runtimepath+=~/.vim/after
+	let &packpath = &runtimepath
+endif
+
 " Use Vim settings:
 " This must be first, because it changes other options as a side effect.
 set nocompatible
@@ -6,19 +12,23 @@ set nocompatible
 let mapleader = "\<Space>"
 
 " Leader keypress delay before accepting command:
-set timeoutlen=750
+"set timeoutlen=750
 
 " ~~~~ vim-plug ~~~~
 call plug#begin('~/.vim/plugged')
-	"Finding
+	" Finding
 	if has('nvim')
-		Plug 'nvim-lua/plenary.nvim'
-		Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.3' }
-		Plug 'nvim-telescope/telescope-file-browser.nvim'
-		lua require("config.telescope")
+    Plug 'ibhagwan/fzf-lua', {'branch': 'main'}
+    " optional for icon support
+    Plug 'nvim-tree/nvim-web-devicons'
+		" Plug 'nvim-lua/plenary.nvim'
+		" Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.3' }
+		" Plug 'nvim-telescope/telescope-file-browser.nvim'
 	else
 		Plug 'junegunn/fzf.vim'
 	endif
+  " Bookmarks
+  Plug 'kshenoy/vim-signature'
   " Better buffer handling
   Plug 'qpkorr/vim-bufkill'
   " Text utils
@@ -32,8 +42,11 @@ call plug#begin('~/.vim/plugged')
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
 call plug#end()
 
-" Required for vundle: TODO (remove)
-filetype plugin indent on
+" Post initialization for neovim-specific plugins:
+" if has('nvim')
+"   lua require("telescope").load_extension "file_browser"
+"   "lua require("config.telescope").load_extension "file_browser"
+" end
 
 " Make backspace behave in a sane manner.
 set backspace=indent,eol,start
@@ -44,14 +57,25 @@ syntax on
 " Enable file type detection and do language-dependent indenting.
 filetype plugin indent on
 
-" Enable lazy redraw
-set lazyredraw
+
+" " Enable lazy redraw
+" set lazyredraw
 
 " Enable sign column
 set signcolumn=yes
 
 " Show line numbers
 set number
+
+" Show tab characters
+set list
+
+" Display tab characters with >-
+"set listchars=tab:﹍﹍
+set listchars=tab:··,extends:›,precedes:‹,nbsp:·,trail:·
+
+" Tabs are spaces
+set expandtab
 
 " Set relative line number
 set relativenumber
@@ -76,9 +100,6 @@ set shiftwidth=2
 
 " Add full file path to your existing statusline
 set statusline+=%F
-
-" Tabs are spaces
-"set expandtab
 
 " Highlight current line
 set cursorline
@@ -150,18 +171,82 @@ endif
 
 " === Mouse ===================================================================
 
-" Only allow mouse selection in normal+visual mode
-set mouse=nv
-"set mouse=
-set selectmode=
+" Disable mouse
+set mouse=
+"set ttymouse=
+
+" " Only allow mouse selection in normal+visual mode
+" set mouse=nv
+" "set mouse=
+" set selectmode=
+"
+" === Scrolling ===============================================================
+
+" ctrl-e & ctrl-y scroll 2 lines at a time:
+nnoremap <C-e> 2<C-e>
+nnoremap <C-y> 2<C-y>
+
+" === fzf setup for all usage later in this configuration =====================
+
+" https://github.com/ibhagwan/fzf-lua
+lua << EOF
+require('nvim-web-devicons').setup {
+ -- your personnal icons can go here (to override)
+ -- you can specify color or cterm_color instead of specifying both of them
+ -- DevIcon will be appended to `name`
+ override = {
+  zsh = {
+    icon = "",
+    color = "#428850",
+    cterm_color = "65",
+    name = "Zsh"
+  }
+ };
+ -- globally enable different highlight colors per icon (default to true)
+ -- if set to false all icons will have the default icon's color
+ color_icons = true;
+ -- globally enable default icons (default to false)
+ -- will get overriden by `get_icons` option
+ default = true;
+ -- globally enable "strict" selection of icons - icon will be looked up in
+ -- different tables, first by filename, and if not found by extension; this
+ -- prevents cases when file doesn't have any extension but still gets some icon
+ -- because its name happened to match some extension (default to false)
+ strict = true;
+ -- same as `override` but specifically for overrides by filename
+ -- takes effect when `strict` is true
+ override_by_filename = {
+  [".gitignore"] = {
+    icon = "",
+    color = "#f1502f",
+    name = "Gitignore"
+  }
+ };
+ -- same as `override` but specifically for overrides by extension
+ -- takes effect when `strict` is true
+ override_by_extension = {
+  ["log"] = {
+    icon = "",
+    color = "#81e043",
+    name = "Log"
+  }
+ };
+}
+
+
+FZF = require('fzf-lua')
+FZF.setup({'fzf-native'})
+EOF
 
 " === Buffers =================================================================
 
 " Show the list of buffers using fzf:
 if has('nvim')
 	" - Using telescope:
-	noremap <nowait> <leader>b :Telescope buffers<CR>
-	noremap <leader><Tab> :Telescope buffers<CR>
+	" noremap <nowait> <leader>b :Telescope buffers<CR>
+	" noremap <leader><Tab> :Telescope buffers<CR>
+	noremap <leader>b <cmd>lua FZF.buffers()<CR>
+	noremap <leader><tab> <cmd>lua FZF.buffers()<CR>
 else
 	" - Using fzf:
 	noremap <nowait> <leader>b :Buffers<CR>
@@ -263,9 +348,10 @@ endif
 
 " Show marks (with fzf):
 if has('nvim')
-	" Not yet supported
+  " Not yet supported
+  noremap <leader>m <cmd>lua FZF.marks()<CR>
 else
-	nnoremap <leader>m :Marks<CR>
+  nnoremap <leader>m :Marks<CR>
 endif
 
 " === Registers ==============================================================
@@ -273,6 +359,7 @@ endif
 " Show registers
 if has('nvim')
 	" Not yet supported
+  noremap <leader>r <cmd>lua FZF.registers()<CR>
 else
 	nnoremap <leader>r :registers<CR>
 endif
@@ -327,19 +414,21 @@ let g:fzf_buffers_jump = 1
 " Find files:
 if has('nvim')
 	" Using telescope:
-	noremap <leader>p :Telescope find_files<CR>
+  noremap <leader>p <cmd>lua FZF.files()<CR>
 else
 	" Using fzf:
 	noremap <leader>p :Files <CR>
 	noremap <leader>P :GFiles <CR>
 endif
 
-" grepping
+" grepping (https://github.com/ibhagwan/fzf-lua)
 if has('nvim')
-	" Using telescope
-	noremap <leader>f :Telescope live_grep<CR>
-	" Grep for word under cursor (telescope)
-	noremap <leader>g :Telescope grep_string<CR>
+  " Grep using ripgrep with globbing:
+  noremap <leader>f <cmd>lua FZF.live_grep_glob()<CR>
+  " Grep with previous input:
+  noremap <leader>F <cmd>lua FZF.live_grep_resume()<CR>
+  " Grep with visual selection:
+  noremap <leader>g <cmd>lua FZF.grep_visual()<CR>
 else
 	" Use Ripgrep + fzf (requires `brew install ripgrep`)
 	noremap <leader>f :Rg<CR>
@@ -391,13 +480,8 @@ let g:netrw_winsize = 24
 " https://www.reddit.com/r/neovim/comments/z86ife/check_if_explore_is_open/
 "lua vim.keymap.set("n", "<leader>n", function() if (vim.api.nvim_buf_get_option(0, "filetype")=="netrw") then vim.api.nvim_exec("close", false) else vim.api.nvim_exec(":Sex!", false) end end, {})
 
-if has('nvim')
-	" Use telescope explorer if available
-	nnoremap <leader>n :Telescope file_browser<return><esc>
-else
-	" Use netrw otherwise
-	nnoremap <leader>n :Lexplore<return><esc>
-endif
+" Use netrw otherwise
+noremap <leader>n :Lexplore<return><esc>
 
 " === Custom ESC behavior =====================================================
 
@@ -416,4 +500,3 @@ let g:airline#extensions#tabline#buffer_nr_show=1
 " === Format JSON =============================================================
 
 :command FormatJson %!python -m json.tool
-

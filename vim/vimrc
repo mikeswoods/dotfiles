@@ -292,23 +292,10 @@ noremap <leader>t :tabs<CR>
 
 " Disable arrow keys:
 
-" - in insert mode:
-imap <up> <nop>
-imap <down> <nop>
-imap <left> <nop>
-imap <right> <nop>
-
-" - in normal mode:
-nmap <up> <nop>
-nmap <down> <nop>
-nmap <left> <nop>
-nmap <right> <nop>
-
-" - in visual mode:
-vmap <up> <nop>
-vmap <down> <nop>
-vmap <left> <nop>
-vmap <right> <nop>
+noremap <Up> <Nop>
+noremap <Down> <Nop>
+noremap <Left> <Nop>
+noremap <Right> <Nop>
 
 " === Display & status ========================================================
 

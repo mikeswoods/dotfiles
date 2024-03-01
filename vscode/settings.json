@@ -1,5 +1,12 @@
 {
     "workbench.colorTheme": "Solarized Dark",
     "redhat.telemetry.enabled": false,
-    "workbench.activityBar.location": "top"
+    "workbench.activityBar.location": "top",
+    "editor.stickyScroll.enabled": false,
+    "vim.camelCaseMotion.enable": true,
+    "vim.leader": " ",
+    "search.showLineNumbers": true,
+    "editor.lineNumbers": "relative",
+    "notebook.lineNumbers": "on",
+    "vim.smartRelativeLine": true
 }

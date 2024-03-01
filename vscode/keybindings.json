@@ -1,19 +1,23 @@
 // Place your key bindings in this file to override the defaults
 [
     {
-        "key": "space shift+f",
-        "command": "search.action.openNewEditorToSide"
-    },
-    {
-        "key": "space k",
+        "key": "ctrl+space k",
         "command": "workbench.action.openGlobalKeybindingsFile"
     },
     {
-        "key": "space f",
+        "key": "shift+cmd+f",
         "command": "search.action.openNewEditor"
     },
     {
         "key": "cmd+escape",
         "command": "workbench.action.toggleSidebarVisibility"
+    },
+    {
+        "key": "shift+cmd+f",
+        "command": "-workbench.action.findInFiles"
+    },
+    {
+        "key": "cmd+m",
+        "command": "editor.action.toggleMinimap"
     }
 ]

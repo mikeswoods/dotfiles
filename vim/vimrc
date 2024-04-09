@@ -413,9 +413,9 @@ if has('nvim')
   " Grep using ripgrep with globbing:
   noremap <leader>f <cmd>lua FZF.live_grep_glob()<CR>
   " Grep with previous input:
-  noremap <leader>F <cmd>lua FZF.live_grep_resume()<CR>
-  " Grep with visual selection:
-  noremap <leader>g <cmd>lua FZF.grep_visual()<CR>
+  " noremap <leader>F <cmd>lua FZF.live_grep_resume()<CR>
+  " Grep for word under cursor:
+  noremap <leader>g <cmd>lua FZF.grep_cword()<CR>
 else
 	" Use Ripgrep + fzf (requires `brew install ripgrep`)
 	noremap <leader>f :Rg<CR>
